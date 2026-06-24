@@ -1,0 +1,139 @@
+{
+    "Eze": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:01:37",
+            "fecha_hora": "2026-06-05 16:00:01"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:01:51",
+            "fecha_hora": "2026-06-05 21:34:51"
+        },
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:03:44",
+            "fecha_hora": "2026-06-05 23:34:16"
+        }
+    ],
+    "Valeria": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:00:59",
+            "fecha_hora": "2026-06-05 10:15:30"
+        },
+        {
+            "dificultad": "Intermedio",
+            "tiempo": "00:04:12",
+            "fecha_hora": "2026-06-05 11:22:45"
+        }
+    ],
+    "Carlos": [
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:08:45",
+            "fecha_hora": "2026-06-04 18:30:12"
+        },
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:03:20",
+            "fecha_hora": "2026-06-05 14:05:11"
+        }
+    ],
+    "Ana_Gomez": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:01:15",
+            "fecha_hora": "2026-06-05 09:00:00"
+        },
+        {
+            "dificultad": "Intermedio",
+            "tiempo": "00:02:55",
+            "fecha_hora": "2026-06-05 09:45:18"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:06:12",
+            "fecha_hora": "2026-06-05 13:20:40"
+        }
+    ],
+    "Tomas": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:02:10",
+            "fecha_hora": "2026-06-03 22:11:05"
+        }
+    ],
+    "Lucia_M": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:05:34",
+            "fecha_hora": "2026-06-05 15:50:22"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:12:01",
+            "fecha_hora": "2026-06-05 17:10:03"
+        }
+    ],
+    "Bruno": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:00:48",
+            "fecha_hora": "2026-06-05 19:02:15"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:05:14",
+            "fecha_hora": "2026-06-05 20:40:59"
+        }
+    ],
+    "Elena_99": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:02:15",
+            "fecha_hora": "2026-06-04 12:00:35"
+        }
+    ],
+    "Mateo": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:01:42",
+            "fecha_hora": "2026-06-05 08:30:22"
+        },
+        {
+            "dificultad": "Intermedio",
+            "tiempo": "00:04:50",
+            "fecha_hora": "2026-06-05 11:15:00"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:10:23",
+            "fecha_hora": "2026-06-05 19:55:12"
+        }
+    ],
+    "Sofia_Dev": [
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:04:39",
+            "fecha_hora": "2026-06-05 21:00:05"
+        },
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:01:05",
+            "fecha_hora": "2026-06-05 21:15:45"
+        }
+    ],
+    "Diego_K": [
+        {
+            "dificultad": "Facil",
+            "tiempo": "00:03:08",
+            "fecha_hora": "2026-06-05 13:40:19"
+        },
+        {
+            "dificultad": "Dificil",
+            "tiempo": "00:07:52",
+            "fecha_hora": "2026-06-05 14:55:31"
+        }
+    ]
+}
