@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 class gameWindow(tk.Toplevel):
-    def __init__(self, parent, nivel,clk,elementos,ntop,time = 0,data=None):
+    def __init__(self, parent,elementos, data=None):
         super().__init__(parent)
 
         self.parent = parent
@@ -20,7 +20,8 @@ class gameWindow(tk.Toplevel):
         self.timerTime = data["time"] #time 
         self.clk = data["clk"] #clk    
         self.elementos = elementos    
-        print(elementos)
+        #print(elementos)
+        print(self.clk)
         self.ntop = data["top"] #ntop
         self.partida = data["partida"]        
 
@@ -28,7 +29,12 @@ class gameWindow(tk.Toplevel):
         self.crono = False
         self.tablero = None
         self.crono_id = None
-        self.MAPEO_LETRAS = {1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "}
+        self.multipartida = False
+        if self.dificultad == "Multi":
+            self.multipartida = True
+            self.dificultad = "Facil"
+
+        self.MAPEO_LETRAS = data["ele"] #{1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "}
 
         self.createIGU()
 
@@ -50,7 +56,10 @@ class gameWindow(tk.Toplevel):
         cronoFrame = tk.Frame(fila_base, bg="white")
         #-Componentes-
         self.lbl_reloj = tk.Label(cronoFrame, text="00:00:00", bg="black", fg="#00ff00")  # Color verde tipo cronómetro digital
-        self.lbl_nivel = tk.Label(cronoFrame, text="Nivel: "+self.dificultad)
+        dif = self.dificultad
+        if self.multipartida:
+            dif = "Multinivel: "+ self.dificultad
+        self.lbl_nivel = tk.Label(cronoFrame, text="Nivel: "+dif)
 
         self.lbl_reloj.pack(side="left", padx=5)
         self.lbl_nivel.pack(side="left")
@@ -122,8 +131,8 @@ class gameWindow(tk.Toplevel):
         for fila in range(3):
             for col in range(3):
                 text = str(contador)
-                if not (self.elementos):
-                    text = self.MAPEO_LETRAS.get(int(text), "")
+                #if not (self.elementos):
+                text = self.MAPEO_LETRAS.get(int(text), "")
 
                 btn_num = tk.Button(self.numbersFrame, text=text, command=lambda num= contador:self.colocar_numero(str(num)),state="disabled")
                 btn_num.grid(row=fila, column=col, padx=2, pady=2, sticky="nsew")
@@ -197,8 +206,9 @@ class gameWindow(tk.Toplevel):
             for col in range(9):
                 text = str(self.tablero[fila][col])
                 
-                if not (self.elementos):
-                    text = self.MAPEO_LETRAS.get(int(text), "")
+                #if any(isinstance(valor,int) for valor in self.MAPEO_LETRAS.values()):
+                text = self.MAPEO_LETRAS.get(int(text), "")
+                #print(text)
                 
                 if text == "-1":
                     text = " "
@@ -269,8 +279,8 @@ class gameWindow(tk.Toplevel):
 
         #Si todo está en orden, cambia el color de la casilla, y coloca el nuevo número
         text = str(numero)
-        if not self.elementos:
-            text = self.MAPEO_LETRAS.get(int(text), "")
+        #if not self.elementos:
+        text = self.MAPEO_LETRAS.get(int(text), "")
 
         self.casilla.config(bg="white")
         self.casilla.config(text=text)
@@ -279,13 +289,35 @@ class gameWindow(tk.Toplevel):
         self.pilaEliminadasJ = []
         
         #Verificamos si el juego está completo
+        print(self.multipartida)
         if self.verificar_juego():
-            messagebox.showinfo("Sudoku","¡EXCELENTE! JUEGO COMPLETADO")
-            self.pausar_crono()
-            self.js.nombre_archivo = "sudoku2026_bitácora_jugadas.json"
-            message = self.js.registrar_partida(self.txt_nombre.get(),self.dificultad,self.lbl_reloj.cget("text"))
-            if message:
-                messagebox.showinfo("Sudoku","Partida guardada con éxito")
+            if self.multipartida:
+                if self.dificultad == "Facil":
+                    messagebox.showinfo("Sudoku","¡EXCELENTE! PASANDO A JUEGO INTERMEDIO")
+                    self.limpiar_tablero()
+                    self.dificultad = "Intermedio"
+                    self.iniciar_juego()
+                elif self.dificultad == "Intermedio":
+                    messagebox.showinfo("Sudoku","¡EXCELENTE! PASANDO A JUEGO DIFICIL")
+                    self.limpiar_tablero()
+                    self.dificultad = "Dificil"
+                    self.iniciar_juego()
+                else:
+                    #Super hardcodeado pero ok
+                    self.multipartida = False
+                    messagebox.showinfo("Sudoku","¡EXCELENTE! JUEGO COMPLETADO")
+                    self.pausar_crono()
+                    self.js.nombre_archivo = "sudoku2026_bitácora_jugadas.json"
+                    message = self.js.registrar_partida(self.txt_nombre.get(),self.dificultad,self.lbl_reloj.cget("text"))
+                    if message:
+                        messagebox.showinfo("Sudoku","Partida guardada con éxito")
+            else:
+                messagebox.showinfo("Sudoku","¡EXCELENTE! JUEGO COMPLETADO")
+                self.pausar_crono()
+                self.js.nombre_archivo = "sudoku2026_bitácora_jugadas.json"
+                message = self.js.registrar_partida(self.txt_nombre.get(),self.dificultad,self.lbl_reloj.cget("text"))
+                if message:
+                    messagebox.showinfo("Sudoku","Partida guardada con éxito")
 
     def verificar_juego(self):
         #Retorna True si el juego está completo, False de lo contrario
@@ -533,14 +565,30 @@ class gameWindow(tk.Toplevel):
     def guardar_juego(self):
         #Guardamos la partida actual
         self.js.nombre_archivo = "sudoku2026juegoactual.json"
-        message = self.js.guardar_partida(self.tablero,self.dificultad,False,True,self.txt_nombre.get(),self.lbl_reloj.cget("text"),self.pilaUltimasJ,self.pilaEliminadasJ)
+        timer = False
+        crono = False
+        if self.clk == "timer":
+            timer = True
+        elif self.clk == "crono":
+            crono = True
+
+        nivel = self.dificultad
+        if self.multipartida:
+            nivel = "Multinivel-"+self.dificultad
+
+        message = self.js.guardar_partida(self.tablero,nivel,crono,timer,self.txt_nombre.get(),self.lbl_reloj.cget("text"),self.MAPEO_LETRAS,self.pilaUltimasJ,self.pilaEliminadasJ)
         if message:
             messagebox.showinfo("Sudoku","Partida guardada con éxito")
 
     def cargar_juego(self):
         #Cargamos la partida actual
         self.js.nombre_archivo = "sudoku2026juegoactual.json"
-        a = self.js.cargar_partida(self.txt_nombre.get(),self.dificultad)
+        nivel = self.dificultad
+        if self.multipartida:
+            nivel = "Multinivel-"+self.dificultad
+
+        a = self.js.cargar_partida(self.txt_nombre.get(),nivel)
+
         if (a == None):
             messagebox.showinfo("Sudoku","NO TIENE UN JUEGO GUARDADO CON ESTA DIFICULTAD")
             return
@@ -553,6 +601,8 @@ class gameWindow(tk.Toplevel):
         #Datos
         self.pilaUltimasJ = a["ultimas_jugadas"]
         self.pilaEliminadasJ = a["jugadas_eliminadas"]
+        self.MAPEO_LETRAS = {int(llave): valor for llave, valor in a["elementos"].items()}
+        print(self.MAPEO_LETRAS)
         self.clk = a["type"]
         tiempo_texto = a["tiempo"]
         partes = tiempo_texto.split(":")
@@ -567,6 +617,20 @@ class gameWindow(tk.Toplevel):
         self.timerTime = self.segundos_totales
         self.lbl_reloj.configure(text=a["tiempo"])
         #endregion
+
+        #region Para el multinivel
+        if "Multinivel" in a["nivel"]:
+            partes = a["nivel"].split("-")
+            if partes[1] == "Facil":
+                self.dificultad = "Facil"
+            elif partes[1]== "Intermedio":
+                self.dificultad = "Intermedio"
+            else:
+                self.dificultad = "Dificil"
+
+        self.lbl_nivel.config(text="Nivel: Multinivel: "+self.dificultad)
+        for i in range(1,10):
+            self.botones_numericos[i].config(text= self.MAPEO_LETRAS[i])
 
         messagebox.showinfo("Sudoku","Juego cargado")
         self.iniciar_juego()

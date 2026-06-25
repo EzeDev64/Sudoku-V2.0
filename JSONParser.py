@@ -66,10 +66,11 @@ class JsonParser:
 
         return self.save(datos)
 
-    def guardar_partida(self,tablero,nivel,crono,reloj,nombre,time,pila_ultimas,pila_eliminadas):
+    def guardar_partida(self,tablero,nivel,crono,timer,nombre,time,elementos,pila_ultimas,pila_eliminadas):
         #Adapta el dato clk
+        print(f"crono: {crono} timer: {timer}")
         clk_type = ""
-        if crono and reloj:
+        if crono and timer:
             clk_type = "none"
         else:
             if crono:
@@ -83,6 +84,7 @@ class JsonParser:
             "nivel": nivel,
             "type": clk_type,
             "tiempo": time,
+            "elementos": elementos,
             "ultimas_jugadas": pila_ultimas,
             "jugadas_eliminadas": pila_eliminadas
         }
@@ -97,7 +99,10 @@ class JsonParser:
 
         #Guarda la partida, sobreescribe en caso de otra partida del mismo nivel o crea una nueva en caso que no exista
         for i in range(len(partidas_jugador)):
-            if partidas_jugador[i]["nivel"] == nivel:
+            base_guardada = partidas_jugador[i]["nivel"].split("-")[0]
+            base_actual = nivel.split("-")[0]
+
+            if base_guardada ==  base_actual:
                 partidas_jugador[i] = game
                 partida_dificultad = True
                 print(f"Se ha sobreescrito la partida guardada en nivel: {nivel}")
@@ -118,7 +123,10 @@ class JsonParser:
             partidas_jugador = datos[nombre]
 
             for partida in partidas_jugador:
-                if partida["nivel"] == nivel:
+                base_guardada = partida["nivel"].split("-")[0]
+                base_actual = nivel.split("-")[0]
+
+                if base_guardada ==  base_actual:
                     tablero_file = partida["tablero"]
                     
                     #Convertimos el tipo de dato en caso de errores
@@ -132,6 +140,7 @@ class JsonParser:
                         "nivel": partida["nivel"],
                         "type": partida["type"],
                         "tiempo": partida["tiempo"],
+                        "elementos": partida["elementos"],
                         "ultimas_jugadas": ultimas_cargadas,
                         "jugadas_eliminadas": eliminadas_cargadas
                     }

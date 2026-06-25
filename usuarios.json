@@ -1,0 +1,20 @@
+{
+    "1":
+        {
+            "correo": "ezequielBonilla@gmail.com",
+            "codigo_ingreso": 666,
+            "nombre": "Eze",
+            "fecha_creacion":"24/6/2026",
+            "costum_elements": {}
+        }
+    ,
+    "2":
+        {
+            "correo": "example@gmail.com",
+            "codigo_ingreso": 6767,
+            "nombre": "Leiuqeze",
+            "fecha_creacion":"24/6/2026",
+            "costum_elements": {}
+        }  
+    
+}

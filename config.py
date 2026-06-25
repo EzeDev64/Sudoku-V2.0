@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
 
 class configWindow(tk.Toplevel):
-    def __init__(self,parent):
+    def __init__(self,parent,list_elements):
         super().__init__(parent)
         self.parent = parent
         
@@ -11,7 +12,7 @@ class configWindow(tk.Toplevel):
         self.resizable(False, False)
         
         self.var_reloj = tk.StringVar(self) 
-
+        self.list_elements = list_elements
         self.crear_interfaz()
 
     def crear_interfaz(self):
@@ -22,6 +23,7 @@ class configWindow(tk.Toplevel):
         self.rowconfigure(3, weight=1) 
         self.rowconfigure(4, weight=1) 
         self.rowconfigure(5, weight=1)
+        self.rowconfigure(6, weight=1)
         self.columnconfigure(0, weight=1)
 
         #Configuración del título
@@ -37,7 +39,7 @@ class configWindow(tk.Toplevel):
         rb_facil = tk.Radiobutton(level_frame,text="Facil", variable=self.var_dificultad,value="Facil")
         rb_intermedio = tk.Radiobutton(level_frame,text="Intermedio", variable=self.var_dificultad,value="Intermedio")
         rb_dificil = tk.Radiobutton(level_frame,text="Dificil", variable=self.var_dificultad,value="Dificil")
-        rb_multi = tk.Radiobutton(level_frame,text="Multinivel",variable=self.var_dificultad,value="Dificil")
+        rb_multi = tk.Radiobutton(level_frame,text="Multinivel",variable=self.var_dificultad,value="Multi")
 
         lbl_level.pack(side=tk.LEFT, padx=10)
         rb_facil.pack(side=tk.LEFT, padx=10)
@@ -112,18 +114,23 @@ class configWindow(tk.Toplevel):
 
         element_frame = tk.Frame(self)
         lbl_element= tk.Label(element_frame, text="Panel de elementos:", fg="black", font=("Arial", 12, "bold"))
-        lbl_element.pack(side=tk.LEFT, padx=10)
+        lbl_element.pack(side=tk.LEFT, padx=5)
         self.var_elementos = tk.StringVar(value="num")
-        rb_num = tk.Radiobutton(element_frame,text="Números", variable=self.var_elementos,value="num")
-        rb_num.pack(side=tk.LEFT, padx=10)
+        self.rb_num = tk.Radiobutton(element_frame,text="Números", variable=self.var_elementos,value="num")
+        self.rb_num.pack(side=tk.LEFT, padx=5)
         rb_let = tk.Radiobutton(element_frame,text="Letras", variable=self.var_elementos,value="let")
-        rb_let.pack(side=tk.LEFT, padx=10)
-        rb_costum = tk.Radiobutton(element_frame,text="Costum",variable=self.var_elementos,value="cos")
-        rb_costum.pack(side=tk.LEFT, padx=10)
-        rb_num.select()
+        rb_let.pack(side=tk.LEFT, padx=5)
+        self.rb_costum = tk.Radiobutton(element_frame,text="Costum",variable=self.var_elementos,value="cos",command=self.create_list_costum)
+        self.rb_costum.pack(side=tk.LEFT, padx=5)
+        self.rb_num.select()
         rb_let.deselect()
-        rb_costum.deselect()
+        self.rb_costum.deselect()
         element_frame.grid(row=4, column=0, sticky="nsew")
+
+        costum_frame = tk.Frame(self)
+        self.lbl_costum = tk.Label(costum_frame,text="Lista de elementos costum: "+ str(self.list_elements))
+        self.lbl_costum.pack(side=tk.BOTTOM)
+        costum_frame.grid(row=5, column=0, sticky="nsew")
 
         btn_frame = tk.Frame(self)
         self.btn_salvar = tk.Button(btn_frame, text="Salvar configuración",command=self.aceptar_cambios)
@@ -131,7 +138,7 @@ class configWindow(tk.Toplevel):
 
         self.btn_salvar.pack(side="right", expand=False, fill="none", padx=2, pady=2)
         self.btn_salir.pack(side="right", expand=False, fill="none", padx=2, pady=2)
-        btn_frame.grid(row=5, column=0, sticky="nsew")
+        btn_frame.grid(row=6, column=0, sticky="nsew")
         self.update_idletasks()
 
     def validar_numeros(self, text):
@@ -189,7 +196,8 @@ class configWindow(tk.Toplevel):
             "dificultad": dificultad_sel,
             "elementos": elementos_sel,
             "reloj_tiempo": tiempo_en_segundos,
-            "cantidad_top": int(self.valor_spinner.get())
+            "cantidad_top": int(self.valor_spinner.get()),
+            "element_list": self.list_elements
         }
         
         self.parent.recibir_configuracion(datos_config)
@@ -210,6 +218,27 @@ class configWindow(tk.Toplevel):
             self.entry_h.config(state="disabled")
             self.entry_m.config(state="disabled")
             self.entry_s.config(state="disabled")
+
+    def create_list_costum(self):
+        change = False
+        if any(valor == "" for valor in self.list_elements.values()):
+            messagebox.showinfo("Sudoku", "Lista de elementos no creada, ingrese elemento 1 a 1 con símbolos reconocibles entre si")
+            change = True
+            self.rb_num.select()
+        else:
+            anwser = messagebox.askyesno("Confirmación","¿Desea crear una nueva lisa de elementos?")
+            if anwser:
+                messagebox.showinfo("Sudoku", "Ingrese elemento 1 a 1 con símbolos reconocibles entre si")
+                change = True
+
+        messagebox.showinfo("Sudoku","Agregar validaciones como campos vacíos y textos raros")
+        if change:
+            for i in range(1,10):
+                dato = simpledialog.askstring("Sudoku", f"Valor equivalente a {i}")
+                self.list_elements[i] = dato
+
+            self.lbl_costum.config(text="Lista de elementos costum: "+ str(self.list_elements))
+            self.rb_costum.select()
 
 if __name__ == "__main__":
     app = configWindow()

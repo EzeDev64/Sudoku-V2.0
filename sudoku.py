@@ -7,6 +7,7 @@ from game import gameWindow
 from login import loginWindow
 from partida import Partida
 from user import User
+from JSONParser import JsonParser
 
 class MenuPrincipal(tk.Tk):
     def __init__(self):
@@ -14,6 +15,8 @@ class MenuPrincipal(tk.Tk):
         self.title("Sudoku")
         self.geometry("600x450")
         self.resizable(False, False)
+        self.MAPEO_NUMEROS = {1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,-1:" "}
+        self.MAPEO_LETRAS = {1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "}
 
         #Datos de configuración
         self.clk = "crono"
@@ -21,10 +24,18 @@ class MenuPrincipal(tk.Tk):
         self.dificultad = "Facil"
         self.elementos = True
         self.ntop = 0
+        self.element_list = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
 
         #Usuario y partidas
+        json = JsonParser()
+        json.nombre_archivo = "usuarios.json"
+        file = json.read()   
+
+        data = file["1"]
+        #print(data)
+
         #Recordar que el usuario se crea según lo que pase el login al iniciar sesión
-        self.usuario = User(1,"ezequielBonilla@gmail.com",6767,"Ezequiel","24/6/2026") #Revisar lo de la id
+        self.usuario = User(1,data["correo"],data["codigo_ingreso"],data["nombre"],data["fecha_creacion"],data["costum_elements"]) #Revisar lo de la id
         self.partida = Partida(self.usuario.nombre,-1,"dificil")
         """
         self.pIntermedia = Partida(self.usuario)
@@ -68,19 +79,21 @@ class MenuPrincipal(tk.Tk):
     def abrir_juego(self):
         self.withdraw()
         
-        Pdata = {"dif":self.dificultad, "clk": self.clk, "ele":{1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "},
-            "top":self.ntop,"time": self.segundos_totales, "partida": self.partida}
-        
-        for c in Pdata:
-            print(f"{c}:{Pdata[c]}")
+        lista_ele = self.element_list
+        if any(valor == "" for valor in self.element_list.values()):
+            lista_ele = self.MAPEO_NUMEROS
 
-        ventana_juego = gameWindow(self,self.dificultad,self.clk,self.elementos,self.ntop,self.segundos_totales,Pdata)
+        Pdata = {"dif":self.dificultad, "clk": self.clk, "ele":lista_ele,
+            "top":self.ntop,"time": self.segundos_totales, "partida": self.partida}
+        print(Pdata)
+
+        ventana_juego = gameWindow(self,self.elementos,Pdata)
         ventana_juego.protocol("WM_DELETE_WINDOW", self.quit)
 
     def abrir_configuracion(self):
         self.withdraw() 
 
-        ventana_juego = configWindow(self)
+        ventana_juego = configWindow(self,self.element_list)
         ventana_juego.protocol("WM_DELETE_WINDOW", self.quit)
 
     def abrir_ayuda(self):
@@ -94,15 +107,19 @@ class MenuPrincipal(tk.Tk):
         self.clk = datos["type"]
         self.segundos_totales = datos["reloj_tiempo"]
         self.dificultad = datos["dificultad"]
-        self.ntop = datos["cantidad_top"]
+        self.ntop = datos["cantidad_top"] 
+        self.usuario.costum_elements = datos["element_list"] #Guardar aquí la ref al user
 
         if  datos["elementos"] == "num":
+            self.element_list = self.MAPEO_NUMEROS
             self.elementos = True
-        else:
+        elif datos["elementos"] == "let":
+            self.element_list = self.MAPEO_LETRAS
             self.elementos = False
+        else:
+            self.element_list = datos["element_list"]
 
         self.partida.difficulty = self.dificultad
-        print(self.partida.get_partida())
 
 if __name__ == "__main__":
     app = MenuPrincipal()
