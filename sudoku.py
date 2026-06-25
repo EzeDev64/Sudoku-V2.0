@@ -4,7 +4,9 @@ from tkinter import messagebox
 # Importamos la interfaz que creamos anteriormente
 from config import configWindow
 from game import gameWindow
-#from nuevos_cambios.login import loginWindow
+from login import loginWindow
+from partida import Partida
+from user import User
 
 class MenuPrincipal(tk.Tk):
     def __init__(self):
@@ -20,6 +22,14 @@ class MenuPrincipal(tk.Tk):
         self.elementos = True
         self.ntop = 0
 
+        #Usuario y partidas
+        #Recordar que el usuario se crea según lo que pase el login al iniciar sesión
+        self.usuario = User(1,"ezequielBonilla@gmail.com",6767,"Ezequiel","24/6/2026") #Revisar lo de la id
+        self.partida = Partida(self.usuario.nombre,-1,"dificil")
+        """
+        self.pIntermedia = Partida(self.usuario)
+        self.pFacil = Partida()
+        """
         self.crear_interfaz()
 
     def crear_interfaz(self):
@@ -58,7 +68,13 @@ class MenuPrincipal(tk.Tk):
     def abrir_juego(self):
         self.withdraw()
         
-        ventana_juego = gameWindow(self,self.dificultad,self.clk,self.elementos,self.ntop,self.segundos_totales)
+        Pdata = {"dif":self.dificultad, "clk": self.clk, "ele":{1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "},
+            "top":self.ntop,"time": self.segundos_totales, "partida": self.partida}
+        
+        for c in Pdata:
+            print(f"{c}:{Pdata[c]}")
+
+        ventana_juego = gameWindow(self,self.dificultad,self.clk,self.elementos,self.ntop,self.segundos_totales,Pdata)
         ventana_juego.protocol("WM_DELETE_WINDOW", self.quit)
 
     def abrir_configuracion(self):
@@ -84,6 +100,9 @@ class MenuPrincipal(tk.Tk):
             self.elementos = True
         else:
             self.elementos = False
+
+        self.partida.difficulty = self.dificultad
+        print(self.partida.get_partida())
 
 if __name__ == "__main__":
     app = MenuPrincipal()

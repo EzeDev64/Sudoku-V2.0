@@ -37,14 +37,17 @@ class configWindow(tk.Toplevel):
         rb_facil = tk.Radiobutton(level_frame,text="Facil", variable=self.var_dificultad,value="Facil")
         rb_intermedio = tk.Radiobutton(level_frame,text="Intermedio", variable=self.var_dificultad,value="Intermedio")
         rb_dificil = tk.Radiobutton(level_frame,text="Dificil", variable=self.var_dificultad,value="Dificil")
+        rb_multi = tk.Radiobutton(level_frame,text="Multinivel",variable=self.var_dificultad,value="Dificil")
 
         lbl_level.pack(side=tk.LEFT, padx=10)
         rb_facil.pack(side=tk.LEFT, padx=10)
         rb_intermedio.pack(side=tk.LEFT, padx=10)
         rb_dificil.pack(side=tk.LEFT, padx=10)
+        rb_multi.pack(side=tk.LEFT,padx=10)
         rb_facil.select()
         rb_intermedio.deselect()
         rb_dificil.deselect()
+        rb_multi.deselect()
         level_frame.grid(row=1, column=0, sticky="nsew")
 
         #Configuración del relog y cronómetro
@@ -74,13 +77,13 @@ class configWindow(tk.Toplevel):
         #Frame para guardar los entry/text_lbl
         frm_entradas_tiempo = tk.Frame(crono_frame, bd=1, relief="solid")
         col_h = tk.Frame(frm_entradas_tiempo)
-        lbl_h = tk.Label(col_h, text="lbl_h")
+        lbl_h = tk.Label(col_h, text="Horas")
         self.entry_h = tk.Entry(col_h, width=4, justify="center", highlightthickness=1,state="disabled",validate="key", validatecommand=configuracion)
         col_m = tk.Frame(frm_entradas_tiempo)
-        lbl_m = tk.Label(col_m, text="lbl_m")
+        lbl_m = tk.Label(col_m, text="Minutos")
         self.entry_m = tk.Entry(col_m, width=4, justify="center",highlightthickness=1,state="disabled",validate="key", validatecommand=configuracion)
         col_s = tk.Frame(frm_entradas_tiempo)
-        lbl_s = tk.Label(col_s, text="lbl_s")
+        lbl_s = tk.Label(col_s, text="Segundos")
         self.entry_s = tk.Entry(col_s, width=4, justify="center", highlightthickness=1,state="disabled",validate="key", validatecommand=configuracion)
         
         col_h.pack(side=tk.LEFT, padx=10, pady=10)
@@ -115,8 +118,11 @@ class configWindow(tk.Toplevel):
         rb_num.pack(side=tk.LEFT, padx=10)
         rb_let = tk.Radiobutton(element_frame,text="Letras", variable=self.var_elementos,value="let")
         rb_let.pack(side=tk.LEFT, padx=10)
+        rb_costum = tk.Radiobutton(element_frame,text="Costum",variable=self.var_elementos,value="cos")
+        rb_costum.pack(side=tk.LEFT, padx=10)
         rb_num.select()
         rb_let.deselect()
+        rb_costum.deselect()
         element_frame.grid(row=4, column=0, sticky="nsew")
 
         btn_frame = tk.Frame(self)

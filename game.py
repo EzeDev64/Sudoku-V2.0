@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 class gameWindow(tk.Toplevel):
-    def __init__(self, parent, nivel,clk,elementos,ntop,time = 0):
+    def __init__(self, parent, nivel,clk,elementos,ntop,time = 0,data=None):
         super().__init__(parent)
 
         self.parent = parent
@@ -15,19 +15,21 @@ class gameWindow(tk.Toplevel):
         self.resizable(False, False)
         
         #Configuraciones de la interfaz
-        self.segundos_totales = time
-        self.crono = False
-        self.js = JsonParser()
-        self.tablero = None
-        self.dificultad = nivel
-        self.clk = clk
+        self.segundos_totales = data["time"] #time
+        self.dificultad = data["dif"] #nivel      
+        self.timerTime = data["time"] #time 
+        self.clk = data["clk"] #clk    
+        self.elementos = elementos    
         print(elementos)
-        self.timerTime = time
-        self.elementos = elementos
-        self.ntop = ntop
+        self.ntop = data["top"] #ntop
+        self.partida = data["partida"]        
+
+        self.js = JsonParser()               
+        self.crono = False
+        self.tablero = None
         self.crono_id = None
         self.MAPEO_LETRAS = {1: "A", 2: "B", 3: "C",4: "D", 5: "E", 6: "F",7: "G", 8: "H", 9: "I", -1: " "}
-        
+
         self.createIGU()
 
     def createIGU(self):
@@ -103,8 +105,9 @@ class gameWindow(tk.Toplevel):
         frame_azul.pack_propagate(False)
 
         #Creación de los paneles misc
+        name = tk.StringVar(self,value=self.partida.name)
         self.lbl_jugador = tk.Label(frame_azul, text="Jugador:", font=("Arial", 12, "bold"),bg=frame_azul.cget("bg"),fg="black",anchor="w")  # Alinea el texto a la izquierda)
-        self.txt_nombre = tk.Entry(frame_azul,font=("Arial", 12))
+        self.txt_nombre = tk.Entry(frame_azul,font=("Arial", 12),state="disabled",textvariable=name)
         self.numbersFrame = tk.Frame(frame_azul, bg="black", height=200,width=200)
         self.botones_numericos = {}
 
