@@ -1,6 +1,7 @@
 import os
 import random
 import fpdf
+import PickleParser
 from JSONParser import JsonParser
 import tkinter as tk
 from tkinter import messagebox
@@ -308,7 +309,7 @@ class gameWindow(tk.Toplevel):
                     messagebox.showinfo("Sudoku","¡EXCELENTE! JUEGO COMPLETADO")
                     self.pausar_crono()
                     self.js.nombre_archivo = "sudoku2026_bitácora_jugadas.json"
-                    message = self.js.registrar_partida(self.txt_nombre.get(),self.dificultad,self.lbl_reloj.cget("text"))
+                    message = self.js.registrar_partida(self.txt_nombre.get(),"Multinivel",self.lbl_reloj.cget("text"))
                     if message:
                         messagebox.showinfo("Sudoku","Partida guardada con éxito")
             else:
@@ -559,7 +560,7 @@ class gameWindow(tk.Toplevel):
     
     def generar_top(self):        
         #Generamos el top según las configuraciones del usuario
-        self.crear_pdf()
+        self.crear_pdf2()
         messagebox.showinfo("Sudoku","Se generó el pdf Top jugadores, abriendo en el navegador...")
 
     def guardar_juego(self):
@@ -657,7 +658,7 @@ class gameWindow(tk.Toplevel):
         pdf.ln(10)
 
         
-        niveles = ["Facil", "Intermedio", "Dificil"]
+        niveles = ["Facil", "Intermedio", "Dificil","Multinivel"]
         #Ancho columnas
         ancho_col1 = 60
         ancho_col2 = 60
@@ -717,6 +718,132 @@ class gameWindow(tk.Toplevel):
         try:
             pdf.output("reporte_bitacora_sudoku.pdf")
             os.startfile('reporte_bitacora_sudoku.pdf')
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el PDF.\nError: {e}")
+
+    def crear_pdf2(self):
+        # 1. Leemos el archivo binario (.pkl) que contiene los objetos ABB directos
+        gestor = PickleParser.PickleParser()
+        datos_pickle = gestor.read()  # Devuelve un diccionario tipo {"Facil": objeto_ABB, ...}
+        
+        # Inicializamos la clase para conversión FPDF
+        pdf = fpdf.FPDF(orientation='P', unit='mm', format='letter')
+        pdf.add_page()
+        
+        # Título
+        pdf.set_font("Arial", style="B", size=16)
+        titulo = "BITÁCORA DE JUGADAS - SUDOKU 2026"
+        pdf.cell(w=0, h=12, txt=titulo.encode('latin-1', 'ignore').decode('latin-1'), ln=1, align='C')
+        
+        # Subtítulo
+        pdf.set_font("Arial", style="I", size=10)
+        txt_top = "Mostrando: Todos los registros" if self.ntop == 0 else f"Mostrando: Top {self.ntop} mejores tiempos"
+        pdf.cell(w=0, h=6, txt=txt_top.encode('latin-1', 'ignore').decode('latin-1'), ln=1, align='C')
+        pdf.ln(10)
+
+        # Categorías principales que queremos en el PDF
+        niveles = ["Facil", "Intermedio", "Dificil", "Multi"]
+        
+        # Ancho columnas
+        ancho_col1 = 60
+        ancho_col2 = 60
+        ancho_col3 = 60
+
+        for nivel in niveles:
+            # Encabezado del nivel
+            pdf.set_font("Arial", style="B", size=12)
+            nivel_encabezado = f"NIVEL: {nivel.upper()}"
+            pdf.cell(w=0, h=8, txt=nivel_encabezado.encode('latin-1', 'ignore').decode('latin-1'), ln=1, align='L')
+            
+            # Títulos de las 3 columnas
+            pdf.set_font("Arial", style="B", size=10)
+            pdf.cell(w=ancho_col1, h=6, txt="JUGADOR".encode('latin-1').decode('latin-1'), ln=0, align='L')
+            pdf.cell(w=ancho_col2, h=6, txt="TIEMPO JUGADO".encode('latin-1').decode('latin-1'), ln=0, align='L')
+            pdf.cell(w=ancho_col3, h=6, txt="EL".encode('latin-1').decode('latin-1'), ln=1, align='L')
+            
+            # Línea divisoria
+            pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + 180, pdf.get_y())
+            pdf.ln(2)
+
+            # Lista temporal para recopilar las jugadas del nivel actual
+            jugadas_nivel = []
+            
+            # --- EXTRACTOR DE NODOS RECURSIVO PARA ABB ---
+            # Buscamos las claves en tu diccionario de árboles
+            for clave_dificultad, arbol_abb in datos_pickle.items():
+                
+                pertenece_a_este_nivel = False
+                if nivel == "Multi" and clave_dificultad.startswith("Multi"):
+                    pertenece_a_este_nivel = True
+                elif clave_dificultad.lower() == nivel.lower():
+                    pertenece_a_este_nivel = True
+
+                # Si coincide la dificultad y el objeto no está vacío, extraemos sus nodos
+                if pertenece_a_este_nivel and arbol_abb and arbol_abb.root is not None:
+                    
+                    # Función interna recursiva para recorrer el ABB en Inorden
+                    def extraer_inorden(nodo):
+                        if nodo is None:
+                            return
+                        
+                        # 1. Moverse al extremo izquierdo
+                        extraer_inorden(nodo.left)
+                        
+                        # 2. Procesar el nodo actual (Raíz intermedia)
+                        # NOTA: Ajusta 'partida = nodo.partida' si es un atributo directo en lugar de método
+                        partida = nodo.get_partida() if hasattr(nodo, 'get_partida') else nodo.partida
+                        
+                        jugador = getattr(partida, 'name', None) or getattr(partida, 'jugador', None) or "Anónimo"
+                        tiempo = getattr(partida, 'time', None) or getattr(partida, 'tiempo', None) or "00:00:00"
+                        fecha = getattr(partida, 'fecha', None) or getattr(partida, 'fecha_hora', None) or "--/--/----"
+                        
+                        jugadas_nivel.append({
+                            "jugador": jugador,
+                            "tiempo": tiempo,
+                            "fecha": fecha
+                        })
+                        
+                        # 3. Moverse al extremo derecho
+                        extraer_inorden(nodo.right)
+
+                    # Lanzamos la recursión desde la raíz del árbol actual
+                    extraer_inorden(arbol_abb.root)
+
+            # Como el ABB ya viene ordenado de menor a mayor por tu método de inserción,
+            # no es estrictamente necesario volver a ordenarlo aquí, pero lo mantenemos por seguridad.
+            jugadas_nivel.sort(key=lambda x: x["tiempo"])
+
+            # Cortamos la lista si el usuario definió un Top N específico
+            if self.ntop > 0:
+                jugadas_nivel = jugadas_nivel[:self.ntop]
+
+            # Escribimos las filas en el PDF
+            pdf.set_font("Arial", style="", size=10)
+            if len(jugadas_nivel) > 0:
+                for j in jugadas_nivel:
+                    pdf.cell(w=ancho_col1, h=6, txt=str(j["jugador"]).encode('latin-1', 'ignore').decode('latin-1'), ln=0, align='L')
+                    pdf.cell(w=ancho_col2, h=6, txt=str(j["tiempo"]).encode('latin-1', 'ignore').decode('latin-1'), ln=0, align='L')
+                    pdf.cell(w=ancho_col3, h=6, txt=str(j["fecha"]).encode('latin-1', 'ignore').decode('latin-1'), ln=1, align='L')
+            else:
+                pdf.set_font("Arial", style="I", size=10)
+                pdf.cell(w=0, h=6, txt="No hay jugadas registradas en este nivel.".encode('latin-1', 'ignore').decode('latin-1'), ln=1, align='L')
+
+            # Espacio antes del siguiente bloque de nivel
+            pdf.ln(10)
+            
+        # Guardar y abrir el PDF final
+        try:
+            nombre_pdf = "reporte_bitacora_sudoku.pdf"
+            pdf.output(nombre_pdf)
+            os.startfile(nombre_pdf)
+        except Exception as e:
+            print(f"❌ Error al abrir o guardar el PDF: {e}")
+
+        # Guardar el PDF final
+        try:
+            nombre_pdf = "reporte_bitacora_sudoku.pdf"
+            pdf.output(nombre_pdf)
+            os.startfile(nombre_pdf)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el PDF.\nError: {e}")
 

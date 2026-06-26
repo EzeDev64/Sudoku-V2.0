@@ -2,6 +2,8 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 # Importamos la interfaz que creamos anteriormente
+from ABB import ABB
+import PickleParser
 from config import configWindow
 from game import gameWindow
 from login import loginWindow
@@ -36,11 +38,144 @@ class MenuPrincipal(tk.Tk):
 
         #Recordar que el usuario se crea según lo que pase el login al iniciar sesión
         self.usuario = User(1,data["correo"],data["codigo_ingreso"],data["nombre"],data["fecha_creacion"],data["costum_elements"]) #Revisar lo de la id
-        self.partida = Partida(self.usuario.nombre,-1,"dificil")
+        self.partida = Partida(self.usuario.nombre,-1,"2026-06-25 00:55:55")
         """
         self.pIntermedia = Partida(self.usuario)
         self.pFacil = Partida()
         """
+
+        self.gestor = PickleParser.PickleParser()
+        datos = {
+            "Facil": [
+                {
+                    "name": "Bruno",
+                    "time": "00:00:48",
+                    "fecha": "2026-06-05 - 19:02:15"
+                },
+                {
+                    "name": "Ana_Gomez",
+                    "time": "00:01:15",
+                    "fecha": "2026-06-05 - 09:00:00"   
+                },
+                {
+                    "name": "Sofia_Dev",
+                    "time": "00:01:05",
+                    "fecha": "2026-06-05 - 21:15:45"
+                },
+                {
+                    "name": "Valeria",
+                    "time": "00:00:59",
+                    "fecha": "2026-06-05 - 10:15:30"
+                },
+                {
+                    "name": "Tomas",
+                    "time": "00:02:10",
+                    "fecha": "2026-06-03 - 22:11:05"
+                },
+                {
+                    "name": "Diego_K",
+                    "time": "00:03:08",
+                    "fecha": "2026-06-05 - 13:40:19"                
+                },
+                {
+                    "name": "Eze",
+                    "time": "00:01:37",
+                    "fecha": "2026-06-05 - 16:00:01"
+                },
+                {
+                    "name": "Elena_99",
+                    "time": "00:02:15",
+                    "fecha": "2026-06-04 - 12:00:35"
+                },
+                {
+                    "name": "Mateo",
+                    "time": "00:01:42",
+                    "fecha": "2026-06-05 - 08:30:22"
+                },
+                {
+                    "name": "Lucia_M",
+                    "time": "00:05:34",
+                    "fecha": "2026-06-05 - 15:50:22"
+                },
+                {
+                    "name": "Carlos",
+                    "time": "00:03:20",
+                    "fecha": "2026-06-05 - 14:05:11"
+                }
+            ],
+            "Intermedio":[
+            {
+                "name": "Ana_Gomez",
+                "time": "00:02:55",
+                "fecha": "2026-06-05 - 09:45:18"
+            },
+            {
+                "name": "Valeria",
+                "time": "00:04:12",
+                "fecha": "2026-06-05 - 11:22:45"
+            },
+            {
+                "name": "Eze",
+                "time": "00:04:21",
+                "fecha": "2026-06-25 - 00:55:55"
+            },
+            {
+                "name": "Mateo",
+                "time": "00:04:50",
+                "fecha": "2026-06-05 - 11:15:00"
+            }
+        ],
+            "Dificil": [
+            {
+                "name": "Eze",
+                "time": "00:01:51",
+                "fecha": "2026-06-05 - 21:34:51"
+            },
+            {
+                "name": "Sofia_Dev",
+                "time": "00:04:39",
+                "fecha": "2026-06-05 - 21:00:05"
+            },
+            {
+                "name": "Bruno",
+                "time": "00:05:14",
+                "fecha": "2026-06-05 - 20:40:59"
+            },
+            {
+                "name": "Ana_Gomez",
+                "time": "00:06:12",
+                "fecha": "2026-06-05 - 13:20:40"
+            },
+            {
+                "name": "Diego_K",
+                "time": "00:07:52",
+                "fecha": "2026-06-05 - 14:55:31"
+            },
+            {
+                "name": "Carlos",
+                "time": "00:08:45",
+                "fecha": "2026-06-04 - 18:30:12"
+            },
+            {
+                "name": "Mateo",
+                "time": "00:10:23",
+                "fecha": "2026-06-05 - 19:55:12"
+            },
+            {
+                "name": "Lucia_M",
+                "time": "00:12:01",
+                "fecha": "2026-06-05 - 17:10:03"
+            }
+        ],"Multi":[
+            {
+                "name": "Eze",
+                "time": "00:09:41",
+                "fecha": "2026-06-25 19:23:47"
+            }
+        ]
+        }
+
+        #self.gestor.saveZ(datos)
         self.crear_interfaz()
 
     def crear_interfaz(self):
@@ -85,7 +220,20 @@ class MenuPrincipal(tk.Tk):
 
         Pdata = {"dif":self.dificultad, "clk": self.clk, "ele":lista_ele,
             "top":self.ntop,"time": self.segundos_totales, "partida": self.partida}
-        print(Pdata)
+        print(Pdata["partida"].get_partida())
+
+        historial_recuperado = self.gestor.read()
+        arbolFacil = historial_recuperado["Facil"]
+        arbolIntermedio = historial_recuperado["Intermedio"]
+        arbolDificil = historial_recuperado["Dificil"]
+        arbolMulti = historial_recuperado["Multi"]
+           
+        estructuras_a_guardar = {
+            "Facil": arbolFacil,
+            "Intermedio": arbolIntermedio,
+            "Dificil": arbolDificil,
+            "Multi": arbolMulti
+        }     
 
         ventana_juego = gameWindow(self,self.elementos,Pdata)
         ventana_juego.protocol("WM_DELETE_WINDOW", self.quit)
