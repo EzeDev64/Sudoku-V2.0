@@ -7,7 +7,6 @@ class EnvioCorreo:
     def __init__(self,codigo,correo):
         # 1. Configuración de credenciales y servidor (Ejemplo con Gmail)
         self.remitente = "ezeprocb2005@gmail.com"
-        # ¡OJO! Esta contraseña debe ser una "Contraseña de aplicación" generada en tu cuenta de Google
         self.password = "brsk mjjv lual xekg" 
         
         self.destinatario = correo
@@ -15,9 +14,9 @@ class EnvioCorreo:
         self.port = 587  # Puerto estándar para TLS
         
         # 2. Ejecutar el envío de forma inmediata al iniciar la clase
-        self.enviar_hello_world(codigo)
+        self.enviar_correo(codigo)
 
-    def enviar_hello_world(self,codigo):
+    def enviar_correo(self,codigo):
         try:
             # 3. Crear la estructura del mensaje
             msg = MIMEMultipart()
@@ -45,8 +44,3 @@ class EnvioCorreo:
         except Exception as e:
             messagebox.showinfo("Sudoku","Error al enviar el correo")
             print(f"Error crítico al intentar enviar el correo: {e}")
-
-# --- Cómo ejecutarla en tu programa ---
-if __name__ == "__main__":
-    # Solo con instanciar la clase, el constructor __init__ se encarga de todo el flujo
-    correo_sistema = EnvioCorreo()

@@ -244,10 +244,10 @@ class MenuPrincipal(tk.Tk):
         ventana_juego.protocol("WM_DELETE_WINDOW", self.quit)
 
     def abrir_ayuda(self):
-        os.startfile('Manual de usuario Sudoku.pdf')
+        os.startfile('Docs\Manual de usuario Sudoku V2.0.pdf')
 
     def abrir_acerca_de(self):
-        messagebox.showinfo("Acerca de", "Sudoku 2026\nVersión: 1.0\nTaller de Programación\nDesarrollado por: Ezequiel Bonilla V.\nInstituto Tecnológico de Costa Rica")
+        messagebox.showinfo("Acerca de", "Sudoku 2026\nVersión: 2.0\nTaller de Programación\nDesarrollado por: Ezequiel Bonilla V.\nInstituto Tecnológico de Costa Rica")
     
     def recibir_login(self,user):
         self.usuario = user

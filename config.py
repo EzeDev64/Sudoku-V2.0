@@ -231,10 +231,15 @@ class configWindow(tk.Toplevel):
                 messagebox.showinfo("Sudoku", "Ingrese elemento 1 a 1 con símbolos reconocibles entre si")
                 change = True
 
-        messagebox.showinfo("Sudoku","Agregar validaciones como campos vacíos y textos raros")
         if change:
             for i in range(1,10):
                 dato = simpledialog.askstring("Sudoku", f"Valor equivalente a {i}")
+                if dato.find('"') or dato.find('/') or dato.find("'") or dato.find('\"'):
+                    messagebox.showinfo("Sudoku","Elementos no pueden ser ',/,\"")
+                    self.list_elements = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
+                    self.lbl_costum.config(text="Lista de elementos costum: "+ str(self.list_elements))
+                    self.rb_num.select()
+                    return
                 if dato.replace(" ","") == "":
                     messagebox.showinfo("Sudoku","Ingrese algún valor para los elementos")
                     self.list_elements = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
