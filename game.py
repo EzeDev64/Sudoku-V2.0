@@ -1,6 +1,7 @@
 import os
 import random
 import fpdf
+from GeneradorTablero import GeneradorSudoku
 import PickleParser
 from JSONParser import JsonParser
 import tkinter as tk
@@ -24,7 +25,8 @@ class gameWindow(tk.Toplevel):
         #print(elementos)
         print(self.clk)
         self.ntop = data["top"] #ntop
-        self.partida = data["partida"]        
+        self.partida = data["partida"] 
+        print(self.partida.name)       
 
         self.js = JsonParser()               
         self.crono = False
@@ -70,12 +72,14 @@ class gameWindow(tk.Toplevel):
         configFrame = tk.Frame(fila_base, bg="white")
         configFrame.pack(side="right", fill="both", expand=True)
         #-Componentes-
+        self.btn_pista = tk.Button(configFrame, text="Pista",state="disabled",command=self.pista)
         self.btn_guardar = tk.Button(configFrame, text="Guardar juego",state="disabled",command=self.guardar_juego)
         self.btn_cargar = tk.Button(configFrame, text="Cargar juego",state="disabled",command=self.cargar_juego)
         self.btn_salir = tk.Button(configFrame, text="Regresar",command=self.salir)
         self.btn_salir.pack(side="left", expand=True, fill="both", padx=2, pady=2)
         self.btn_guardar.pack(side="left", expand=True, fill="both", padx=2, pady=2)
         self.btn_cargar.pack(side="left", expand=True, fill="both", padx=2, pady=2)
+        self.btn_pista.pack(side="left", expand=True, fill="both", padx=2, pady=2)
 
         # Sección de botones
         btnFrame = tk.Frame(self, height=50)
@@ -192,7 +196,8 @@ class gameWindow(tk.Toplevel):
         self.btn_deshacer.config(state="normal")
         self.btn_rehacer.config(state="normal")
         self.btn_terminar.config(state="normal")
-        self.btn_borrar.config(state="normal")      
+        self.btn_borrar.config(state="normal")   
+        self.btn_pista.config(state="normal")    
         self.btn_iniciar.config(state="disabled")
         
         for boton in self.botones_numericos.values():
@@ -370,12 +375,13 @@ class gameWindow(tk.Toplevel):
 
     def crear_juego(self):
         #Obtenemos las partidas de pruebas
-        self.js.nombre_archivo = "sudoku2026partidas.json"
-        partidas = self.js.read()
-
+        """
+        #self.js.nombre_archivo = "sudoku2026partidas.json"
+        #partidas = self.js.read()
         if str.lower(self.dificultad) not in partidas:
             messagebox.showinfo("Sudoku","NO EXISTE NINGUN JUEGO CON ESTA DIFICULTAD")
             return
+        """
 
         #Creamos las pilas de jugadas
         self.pilaUltimasJ=[]
@@ -384,16 +390,21 @@ class gameWindow(tk.Toplevel):
         #Inicializamos el tablero con uno escogido del json al azar
         tablero = [[],[],[],[],[],[],[],[],[]]
 
+        """
         numero_partida = str(random.randint(1, 4))
         partida_seleccionada = partidas[str.lower(self.dificultad)][numero_partida]
         tablero = [[-1 for _ in range(9)] for _ in range(9)]
-
         for coordenada, valor in partida_seleccionada.items():
             #Map nos ayuda a iterar sobre la cordenada (f,c)
             f, c = map(int, coordenada.split(","))
             tablero[f][c] = valor
+        """
 
-        return tablero
+        self.generador = GeneradorSudoku()
+        self.generador.generar_tablero_completo()
+        tablero_para_jugar = self.generador.crear_tablero_juego(self.generador.tablero, dificultad=self.dificultad)
+
+        return tablero_para_jugar
 
     def borrar_juego(self):
         respuesta = messagebox.askyesno("Confirmar", "¿ESTÁ SEGURO DE BORRAR EL JUEGO (SI o NO)?")
@@ -416,6 +427,7 @@ class gameWindow(tk.Toplevel):
             self.btn_rehacer.config(state="disabled")
             self.btn_terminar.config(state="disabled")
             self.btn_borrar.config(state="disabled")
+            self.btn_pista.config(state="disabled")   
             self.btn_iniciar.config(state="normal")
             
             #Sección del tiempo:
@@ -846,6 +858,16 @@ class gameWindow(tk.Toplevel):
             os.startfile(nombre_pdf)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el PDF.\nError: {e}")
+
+    def pista(self):
+        fila = random.randint(0, 8)
+        columna = random.randint(0, 8)
+        
+        # 2. Extraer el elemento que está en esa coordenada
+        elemento = self.generador.tablero[fila][columna]
+        
+        # 3. Retornar los tres datos
+        messagebox.showinfo("Sudoku",f"En la fila {fila+1} columna {columna+1} el número es {self.MAPEO_LETRAS[elemento]}")
 
     def salir(self):
         #Regresar a la pantalla principal

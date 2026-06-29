@@ -1,7 +1,7 @@
 import hashlib
 
 # 1. El texto que queremos procesar
-texto = "Eze ha completado el Sudoku en 00:01:51"
+texto = "174932"
 
 # 2. SHA-256 trabaja con BYTES, por lo que debemos codificar el string usando .encode()
 texto_en_bytes = texto.encode('utf-8')

@@ -147,3 +147,64 @@ class JsonParser:
 
         return None
     
+    def cargar_user(self,correo):
+        datos = self.read()
+        
+        for id_usuario, data in datos.items():
+            # Verificamos si el correo del archivo coincide con el que digita el usuario
+            if data["correo"] == correo:
+                elementos_int = {int(k): v for k, v in data["costum_elements"].items()}
+                print(f"Datos: {elementos_int}")
+
+                return {
+                    "id": id_usuario,
+                    "correo": data["correo"],
+                    "codigo": data["codigo_ingreso"],
+                    "nombre": data["nombre"],
+                    "fecha": data["fecha_creacion"],
+                    "elements": elementos_int
+                }
+                
+
+    def salvar_user(self, user):
+        elementos_programa = user.costum_elements if user.costum_elements else {}
+        #elementos_string = {}
+        #for clave in elementos_programa.items():
+
+        elementos_string = {str(clave): valor for clave, valor in elementos_programa.items()}
+        print(f"elementos string {elementos_string}")
+
+        # 1. Empaquetamos los datos puros que vienen de la clase del usuario
+        datos_usuario = {
+            "correo": user.correo,
+            "codigo_ingreso": user.codigo_ingreso,
+            "nombre": user.nombre,
+            "fecha_creacion": user.fecha_creacion,
+            "costum_elements": elementos_string
+        }
+
+        # 2. Leemos el JSON actual (si no existe o está vacío, inicializamos dict vacío)
+        users = self.read()
+        if not users:
+            users = {}
+
+        # 3. Forzamos el ID a STRING de una vez por todas. 
+        # En el JSON la llave DEBE ser un string ("1", "2", etc.)
+        id_user_str = str(user.id)
+
+        # 4. Validamos si existe o es nuevo usando la llave en string
+        if id_user_str in users:
+            print(f"Actualizando datos del usuario existente. ID: {id_user_str}")
+        else:
+            print(f"Creando nuevo registro de usuario. ID: {id_user_str}")
+
+        # 5. Insertamos o reemplazamos directamente en el diccionario con la llave string
+        users[id_user_str] = datos_usuario
+
+        # 6. Mandamos el diccionario directo a guardarse sin clonaciones raras
+        self.save(users)
+        print("¡Datos guardados exitosamente en el archivo JSON!")
+            
+
+
+        

@@ -25,13 +25,14 @@ class MenuPrincipal(tk.Tk):
         self.segundos_totales = 0
         self.dificultad = "Facil"
         self.elementos = True
+        self.costum_ele = False
         self.ntop = 0
         self.element_list = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
 
         #Usuario y partidas
-        json = JsonParser()
-        json.nombre_archivo = "usuarios.json"
-        file = json.read()   
+        self.json = JsonParser()
+        self.json.nombre_archivo = "usuarios.json"
+        file = self.json.read()   
 
         data = file["1"]
         #print(data)
@@ -39,10 +40,6 @@ class MenuPrincipal(tk.Tk):
         #Recordar que el usuario se crea según lo que pase el login al iniciar sesión
         self.usuario = User(1,data["correo"],data["codigo_ingreso"],data["nombre"],data["fecha_creacion"],data["costum_elements"]) #Revisar lo de la id
         self.partida = Partida(self.usuario.nombre,-1,"2026-06-25 00:55:55")
-        """
-        self.pIntermedia = Partida(self.usuario)
-        self.pFacil = Partida()
-        """
 
         self.gestor = PickleParser.PickleParser()
         datos = {
@@ -174,8 +171,8 @@ class MenuPrincipal(tk.Tk):
             }
         ]
         }
-
         #self.gestor.saveZ(datos)
+        
         self.crear_interfaz()
 
     def crear_interfaz(self):
@@ -214,8 +211,10 @@ class MenuPrincipal(tk.Tk):
     def abrir_juego(self):
         self.withdraw()
         
-        lista_ele = self.element_list
-        if any(valor == "" for valor in self.element_list.values()):
+        
+        if self.costum_ele:
+            lista_ele = self.element_list
+        else:
             lista_ele = self.MAPEO_NUMEROS
 
         Pdata = {"dif":self.dificultad, "clk": self.clk, "ele":lista_ele,
@@ -249,6 +248,12 @@ class MenuPrincipal(tk.Tk):
 
     def abrir_acerca_de(self):
         messagebox.showinfo("Acerca de", "Sudoku 2026\nVersión: 1.0\nTaller de Programación\nDesarrollado por: Ezequiel Bonilla V.\nInstituto Tecnológico de Costa Rica")
+    
+    def recibir_login(self,user):
+        self.usuario = user
+        self.partida.name = user.nombre
+        self.element_list = user.costum_elements
+        print(self.usuario.costum_elements)
 
     def recibir_configuracion(self, datos):
         #Recibe datos de configuración
@@ -256,20 +261,25 @@ class MenuPrincipal(tk.Tk):
         self.segundos_totales = datos["reloj_tiempo"]
         self.dificultad = datos["dificultad"]
         self.ntop = datos["cantidad_top"] 
-        self.usuario.costum_elements = datos["element_list"] #Guardar aquí la ref al user
+        self.usuario.costum_elements = datos["element_list"]
+        #print(datos["element_list"]) #Guardar aquí la ref al user
+        self.json.salvar_user(self.usuario)
 
         if  datos["elementos"] == "num":
             self.element_list = self.MAPEO_NUMEROS
             self.elementos = True
+            self.costum_ele = False
         elif datos["elementos"] == "let":
             self.element_list = self.MAPEO_LETRAS
             self.elementos = False
+            self.costum_ele = False
         else:
             self.element_list = datos["element_list"]
+            self.costum_ele = True
 
         self.partida.difficulty = self.dificultad
 
 if __name__ == "__main__":
     app = MenuPrincipal()
-    #app.abrir_login()
+    app.abrir_login()
     app.mainloop()    

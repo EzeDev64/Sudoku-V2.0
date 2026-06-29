@@ -235,10 +235,32 @@ class configWindow(tk.Toplevel):
         if change:
             for i in range(1,10):
                 dato = simpledialog.askstring("Sudoku", f"Valor equivalente a {i}")
+                if dato.replace(" ","") == "":
+                    messagebox.showinfo("Sudoku","Ingrese algún valor para los elementos")
+                    self.list_elements = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
+                    self.lbl_costum.config(text="Lista de elementos costum: "+ str(self.list_elements))
+                    self.rb_num.select()
+                    return
+                
+                if self.verificar_repetidos(dato):
+                    return
+                
                 self.list_elements[i] = dato
 
+                
             self.lbl_costum.config(text="Lista de elementos costum: "+ str(self.list_elements))
             self.rb_costum.select()
+
+    def verificar_repetidos(self,ele):
+        for e in self.list_elements.values():
+            if ele == e:
+                messagebox.showinfo("Sudoku","No se pueden repetir los elementos")
+                self.list_elements = {1:"",2:"",3:"",4:"",5:"",6:"",7:"",8:"",9:"",-1:" "}
+                self.lbl_costum.config(text="Lista de elementos costum: "+ str(self.list_elements))
+                self.rb_num.select()
+                return True
+            
+        return False
 
 if __name__ == "__main__":
     app = configWindow()
